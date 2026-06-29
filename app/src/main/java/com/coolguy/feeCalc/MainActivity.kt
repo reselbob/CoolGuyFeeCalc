@@ -128,10 +128,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun calculateFee() {
-        val start = binding.etStartLocation.text.toString().trim()
-        val end = binding.etEndLocation.text.toString().trim()
+        val startStreet = binding.etStartStreet.text.toString().trim()
+        val startZip = binding.etStartZip.text.toString().trim()
+        val endStreet = binding.etEndStreet.text.toString().trim()
+        val endZip = binding.etEndZip.text.toString().trim()
+        val start = "$startStreet, $startZip"
+        val end = "$endStreet, $endZip"
 
-        if (start.isEmpty() || end.isEmpty()) {
+        if (startStreet.isEmpty() || startZip.isEmpty() ||
+            endStreet.isEmpty() || endZip.isEmpty()
+        ) {
             Toast.makeText(this, R.string.error_invalid_input, Toast.LENGTH_SHORT).show()
             return
         }
