@@ -32,8 +32,6 @@ class MainActivity : AppCompatActivity() {
         const val PREF_HOME = "home_address"
         const val PREF_API_KEY = "maps_api_key"
         const val DEFAULT_HOME = "3649 Glendon Ave, Los Angeles, CA 90034"
-        const val LOAD_IN_MINUTES = 20
-        const val LOAD_OUT_MINUTES = 20
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -177,25 +175,20 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                val totalMeters = homeToStart.distanceMeters +
-                        startToEnd.distanceMeters +
-                        endToHome.distanceMeters
-                val totalMiles = totalMeters / 1609.344
-
-                val totalDriveSeconds = homeToStart.durationSeconds +
-                        startToEnd.durationSeconds +
-                        endToHome.durationSeconds
-                val totalLaborMinutes = (totalDriveSeconds / 60.0) +
-                        LOAD_IN_MINUTES +
-                        LOAD_OUT_MINUTES
-                val totalLaborHours = totalLaborMinutes / 60.0
-
-                val mileageFee = totalMiles * mileageRate
-                val laborFee = totalLaborHours * laborRate
-                val totalFee = mileageFee + laborFee
+                val input = FeeInput(
+                    homeToStartMeters = homeToStart.distanceMeters,
+                    homeToStartSeconds = homeToStart.durationSeconds,
+                    startToEndMeters = startToEnd.distanceMeters,
+                    startToEndSeconds = startToEnd.durationSeconds,
+                    endToHomeMeters = endToHome.distanceMeters,
+                    endToHomeSeconds = endToHome.durationSeconds,
+                    mileageRate = mileageRate,
+                    laborRate = laborRate
+                )
+                val result = FeeCalculator.calculate(input)
 
                 withContext(Dispatchers.Main) {
-                    displayResults(totalMiles, totalLaborHours, totalFee)
+                    displayResults(result.totalMiles, result.totalHours, result.totalFee)
                     setLoading(false)
                 }
 
