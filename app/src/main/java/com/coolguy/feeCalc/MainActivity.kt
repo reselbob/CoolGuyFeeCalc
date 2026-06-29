@@ -241,7 +241,7 @@ class MainActivity : AppCompatActivity() {
         else getString(R.string.btn_calculate)
     }
 
-    private fun showError(msg: String) {
+    private suspend fun showError(msg: String) {
         withContext(Dispatchers.Main) {
             setLoading(false)
             Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
