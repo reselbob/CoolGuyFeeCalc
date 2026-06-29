@@ -15,4 +15,16 @@
     <string name="result_miles">Estimated Round Trip in Miles: %s</string>
     <string name="result_time">Estimated Time: %s hours</string>
     <string name="result_price">Price of Job: $%s</string>
+    <string name="nav_home_address">Home Address</string>
+    <string name="nav_api_key">API Key</string>
+    <string name="dialog_home_title">Home Address</string>
+    <string name="dialog_api_title">Google Maps API Key</string>
+    <string name="dialog_home_hint">Enter home base address</string>
+    <string name="dialog_api_hint">Enter your Google Maps API key</string>
+    <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="pref_home_address">home_address</string>
+    <string name="pref_api_key">maps_api_key</string>
+    <string name="default_home">3649 Glendon Ave, Los Angeles, CA 90034</string>
+    <string name="no_api_key">No API key configured. Please add one in the menu.</string>
 </resources>

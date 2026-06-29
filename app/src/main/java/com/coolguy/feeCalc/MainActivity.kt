@@ -1,11 +1,17 @@
 package com.coolguy.feeCalc
 
+import android.content.Context
 import android.os.Bundle
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.coolguy.feeCalc.api.DistanceResult
 import com.coolguy.feeCalc.api.MapsApiService
 import com.coolguy.feeCalc.databinding.ActivityMainBinding
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -15,10 +21,17 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navView: NavigationView
     private val api = MapsApiService.create()
+    private val prefs by lazy {
+        getSharedPreferences("coolguy_prefs", Context.MODE_PRIVATE)
+    }
 
     companion object {
-        const val HOME_LOCATION = "3649 Glendon Ave, Los Angeles, CA 90034"
+        const val PREF_HOME = "home_address"
+        const val PREF_API_KEY = "maps_api_key"
+        const val DEFAULT_HOME = "3649 Glendon Ave, Los Angeles, CA 90034"
         const val LOAD_IN_MINUTES = 20
         const val LOAD_OUT_MINUTES = 20
     }
@@ -28,7 +41,92 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        drawerLayout = binding.drawerLayout
+        navView = binding.navView
+
+        setSupportActionBar(binding.toolbar)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        binding.toolbar.setNavigationOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+
+        navView.setNavigationItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home_address -> showHomeAddressDialog()
+                R.id.nav_api_key -> showApiKeyDialog()
+            }
+            drawerLayout.closeDrawer(GravityCompat.START)
+            true
+        }
+
         binding.btnCalculate.setOnClickListener { calculateFee() }
+
+        checkApiKeyOnStart()
+    }
+
+    private fun checkApiKeyOnStart() {
+        val saved = prefs.getString(PREF_API_KEY, null)
+        if (saved.isNullOrBlank()) {
+            showApiKeyDialog(force = true)
+        }
+    }
+
+    private fun getHomeAddress(): String {
+        return prefs.getString(PREF_HOME, DEFAULT_HOME) ?: DEFAULT_HOME
+    }
+
+    private fun getApiKey(): String {
+        val saved = prefs.getString(PREF_API_KEY, null)
+        if (!saved.isNullOrBlank()) return saved
+        return BuildConfig.MAPS_API_KEY
+    }
+
+    private fun showHomeAddressDialog() {
+        val input = EditText(this).apply {
+            setText(getHomeAddress())
+            hint = getString(R.string.dialog_home_hint)
+        }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.dialog_home_title)
+            .setView(input)
+            .setPositiveButton(R.string.dialog_save) { _, _ ->
+                val value = input.text.toString().trim()
+                if (value.isNotEmpty()) {
+                    prefs.edit().putString(PREF_HOME, value).apply()
+                    Toast.makeText(this, "Home address updated", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton(R.string.dialog_cancel, null)
+            .show()
+    }
+
+    private fun showApiKeyDialog(force: Boolean = false) {
+        val input = EditText(this).apply {
+            val existing = prefs.getString(PREF_API_KEY, null)
+            if (!existing.isNullOrBlank()) setText(existing)
+            hint = getString(R.string.dialog_api_hint)
+        }
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.dialog_api_title)
+            .setView(input)
+            .setPositiveButton(R.string.dialog_save) { _, _ ->
+                val value = input.text.toString().trim()
+                if (value.isNotEmpty()) {
+                    prefs.edit().putString(PREF_API_KEY, value).apply()
+                    Toast.makeText(this, "API key saved", Toast.LENGTH_SHORT).show()
+                } else if (force) {
+                    Toast.makeText(this, "API key is required", Toast.LENGTH_LONG).show()
+                }
+            }
+            .setNegativeButton(R.string.dialog_cancel, null)
+
+        if (force) {
+            dialog.setCancelable(false)
+            dialog.setNegativeButton("Exit") { _, _ -> finish() }
+        }
+
+        dialog.show()
     }
 
     private fun calculateFee() {
@@ -40,16 +138,22 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        val apiKey = getApiKey()
+        if (apiKey.isBlank()) {
+            Toast.makeText(this, R.string.no_api_key, Toast.LENGTH_LONG).show()
+            return
+        }
+
         val mileageRate = binding.etMileageFee.text.toString().toDoubleOrNull() ?: 0.34
         val laborRate = binding.etLaborFee.text.toString().toDoubleOrNull() ?: 30.00
+        val home = getHomeAddress()
 
         setLoading(true)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val origins = "$HOME_LOCATION|$start|$end"
-                val destinations = "$start|$end|$HOME_LOCATION"
-                val apiKey = BuildConfig.MAPS_API_KEY
+                val origins = "$home|$start|$end"
+                val destinations = "$start|$end|$home"
 
                 val response = api.getDistanceMatrix(origins, destinations, apiKey)
 
@@ -141,6 +245,14 @@ class MainActivity : AppCompatActivity() {
         withContext(Dispatchers.Main) {
             setLoading(false)
             Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
     }
 }
