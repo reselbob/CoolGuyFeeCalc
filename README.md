@@ -35,6 +35,35 @@ Estimated Time : {(TIME FROM HOME TO START TO END TO HOME) + (LOAD_IN_TIME) + (L
 
 Price of Job: {CALCULATED_PRICE_OF_JOB}
 
-## Notes
+# Using the Google Matrix API
 
-Location lookup is executed using the Google Maps Distance Matrix API to to calcuate distance and travel time.
+Location lookup is executed using the Google Maps Distance Matrix API to calcuate distance and travel time.
+
+**Wiring the application to the API**
+
+1. Get an API key
+
+* Go to https://console.cloud.google.com
+* Create a project (or select existing)
+* Go to APIs & Services > Library
+* Search for "Distance Matrix API" and enable it
+* Go to Credentials > Create Credentials > API Key
+* Copy the key
+
+2. Add the key to the app
+
+Edit app/build.gradle.kts — find this line in both debug and release build types:
+
+`buildConfigField("String", "MAPS_API_KEY", "YOUR_API_KEY_HERE")`
+
+Replace "YOUR_API_KEY_HERE" with your actual key, e.g.:
+
+`buildConfigField("String", "MAPS_API_KEY", "\"AIzaSy...\"")`
+
+Never commit this key to git — the .gitignore already has /app/build covered, but you can also move the key to local.properties and read it from there with a Properties loader if you want it fully out of version control.
+
+3. Secure the key (optional but recommended)
+   In the Google Cloud Console, under API Keys > Edit > Application restrictions, choose Android apps and add your app's package name (com.coolguy.feeCalc) and SHA-1 signing certificate fingerprint.
+
+4. Billing
+   The Distance Matrix API requires a billing account. Google offers a $200/month free credit which covers ~40,000 calls/month.
