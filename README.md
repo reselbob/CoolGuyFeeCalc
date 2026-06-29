@@ -4,7 +4,7 @@
 
 - [Purpose](#purpose)
 - [User Interface](#user-interface)
-- [Using the Google Matrix API](#using-the-google-matrix-api)
+- [Wiring the application to Google Matrix API](#wiring-the-application-to-google-matrix-api)
 
 ## Purpose
 
