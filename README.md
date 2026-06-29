@@ -1,5 +1,11 @@
 # Cool Guy Transport and Delivery Fee Calculator
 
+## Table of Contents
+
+- [Purpose](#purpose)
+- [User Interface](#user-interface)
+- [Using the Google Matrix API](#using-the-google-matrix-api)
+
 ## Purpose
 
 The purpose of the Cool Guy Transport and Delivery Fee Calculator is to determine the fee for a given Transport and Delivery event. A Transport and Delivery event is one in which a client pay Cool Guy Transport and Delivery to move an item from one location to another. The fee is calculated on a door to door basis. For example, if a client want to have a newly purchased 85" TV delivered from the Costco at 13463 Washington Blvd, Marina Del Rey, CA 90292 to 10870 Lindbrook Drive 10870 Lindbrook Dr, Los Angeles, CA 90024 the fee is calculated according to the following rules:
@@ -35,13 +41,11 @@ Estimated Time : {(TIME FROM HOME TO START TO END TO HOME) + (LOAD_IN_TIME) + (L
 
 Price of Job: {CALCULATED_PRICE_OF_JOB}
 
-# Using the Google Matrix API
+# Wiring the application to Google Matrix API
 
 Location lookup is executed using the Google Maps Distance Matrix API to calcuate distance and travel time.
 
-**Wiring the application to the API**
-
-1. Get an API key
+## Get an API key
 
 * Go to https://console.cloud.google.com
 * Create a project (or select existing)
@@ -50,7 +54,7 @@ Location lookup is executed using the Google Maps Distance Matrix API to calcuat
 * Go to Credentials > Create Credentials > API Key
 * Copy the key
 
-2. Add the key to the app
+## Add the key to the app
 
 Create a `secrets.properties` file in the project root with your API key:
 
@@ -60,9 +64,9 @@ MAPS_API_KEY=AIzaSyYourActualKeyHere
 
 The `.gitignore` already excludes this file so it stays local and never gets committed. The build script (`app/build.gradle.kts`) automatically reads the key from this file and makes it available as `BuildConfig.MAPS_API_KEY` at compile time.
 
-3. Secure the key (optional but recommended)
+## Secure the key (optional but recommended)
    In the Google Cloud Console, under API Keys > Edit > Application restrictions, choose Android apps and add your app's package name (com.coolguy.feeCalc) and SHA-1 signing certificate fingerprint.
 
-4. Billing
+## Billing
    The Distance Matrix API requires a billing account. Google offers a $200/month free credit which covers ~40,000 calls/month.
 
