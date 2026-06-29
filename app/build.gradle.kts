@@ -1,6 +1,14 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+}
+
+val secrets = Properties().apply {
+    val f = rootProject.file("secrets.properties")
+    if (f.exists()) load(FileInputStream(f))
 }
 
 android {
@@ -13,6 +21,8 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        buildConfigField("String", "MAPS_API_KEY",
+            "\"${secrets.getProperty("MAPS_API_KEY", "")}\"")
     }
 
     buildFeatures {
@@ -21,12 +31,8 @@ android {
     }
 
     buildTypes {
-        debug {
-            buildConfigField("String", "MAPS_API_KEY", "\"YOUR_API_KEY_HERE\"")
-        }
         release {
             isMinifyEnabled = false
-            buildConfigField("String", "MAPS_API_KEY", "\"YOUR_API_KEY_HERE\"")
         }
     }
 
