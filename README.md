@@ -52,18 +52,17 @@ Location lookup is executed using the Google Maps Distance Matrix API to calcuat
 
 2. Add the key to the app
 
-Edit app/build.gradle.kts — find this line in both debug and release build types:
+Create a `secrets.properties` file in the project root with your API key:
 
-`buildConfigField("String", "MAPS_API_KEY", "YOUR_API_KEY_HERE")`
+```properties
+MAPS_API_KEY=AIzaSyYourActualKeyHere
+```
 
-Replace "YOUR_API_KEY_HERE" with your actual key, e.g.:
-
-`buildConfigField("String", "MAPS_API_KEY", "\"AIzaSy...\"")`
-
-Never commit this key to git — the .gitignore already has /app/build covered, but you can also move the key to local.properties and read it from there with a Properties loader if you want it fully out of version control.
+The `.gitignore` already excludes this file so it stays local and never gets committed. The build script (`app/build.gradle.kts`) automatically reads the key from this file and makes it available as `BuildConfig.MAPS_API_KEY` at compile time.
 
 3. Secure the key (optional but recommended)
    In the Google Cloud Console, under API Keys > Edit > Application restrictions, choose Android apps and add your app's package name (com.coolguy.feeCalc) and SHA-1 signing certificate fingerprint.
 
 4. Billing
    The Distance Matrix API requires a billing account. Google offers a $200/month free credit which covers ~40,000 calls/month.
+
