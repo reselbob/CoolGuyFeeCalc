@@ -78,7 +78,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkApiKeyOnStart() {
         val saved = prefs.getString(PREF_API_KEY, null)
-        if (saved.isNullOrBlank()) {
+        val buildKey = BuildConfig.MAPS_API_KEY
+        if (saved.isNullOrBlank() && buildKey.isNullOrBlank()) {
             showApiKeyDialog(force = true)
         }
     }
