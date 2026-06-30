@@ -52,14 +52,44 @@
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etStartStreet"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/start_street_hint"
+                                android:inputType="textPostalAddress"
+                                android:maxLines="2" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
                             android:layout_marginBottom="8dp"
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etStartLocation"
+                                android:id="@+id/etStartZip"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/start_location_hint"
+                                android:hint="@string/start_zip_hint"
+                                android:inputType="textPostalAddress"
+                                android:maxLines="1" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="4dp"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etEndStreet"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/end_street_hint"
                                 android:inputType="textPostalAddress"
                                 android:maxLines="2" />
                         </com.google.android.material.textfield.TextInputLayout>
@@ -70,12 +100,12 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etEndLocation"
+                                android:id="@+id/etEndZip"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/end_location_hint"
+                                android:hint="@string/end_zip_hint"
                                 android:inputType="textPostalAddress"
-                                android:maxLines="2" />
+                                android:maxLines="1" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
@@ -102,34 +132,43 @@
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
-                        <com.google.android.material.textfield.TextInputLayout
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="8dp"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                            android:orientation="horizontal">
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etMileageFee"
-                                android:layout_width="match_parent"
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/mileage_fee_hint"
-                                android:inputType="numberDecimal"
-                                android:text="0.34" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:layout_marginEnd="6dp"
+                                android:layout_weight="1"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etMileageFee"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/mileage_fee_hint"
+                                    android:inputType="numberDecimal"
+                                    android:text="0.34" />
+                            </com.google.android.material.textfield.TextInputLayout>
 
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etLaborFee"
-                                android:layout_width="match_parent"
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/labor_fee_hint"
-                                android:inputType="numberDecimal"
-                                android:text="30.00" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                                android:layout_weight="1"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etLaborFee"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/labor_fee_hint"
+                                    android:inputType="numberDecimal"
+                                    android:text="30.00" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
