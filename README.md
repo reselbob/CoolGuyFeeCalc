@@ -54,6 +54,8 @@ Price of Job: {CALCULATED_PRICE_OF_JOB}
 (START/STOP_BUTTON) : Starts a timer that keeps track of the actual time it took to execute the job. Once the job starts,
 the button displays STOP. When the STOP button is clicked the {CALCULATED_PRICE_OF_JOB} is displayed.
 
+{CALCULATED_PRICE_OF_JOB} : Displays Actual miles, actual time, actual calculated price of cost of job
+
 (RESET_BUTTON) : Resets the UI, clearing all values in anticipation of accepting another job.
 
 

@@ -33,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     private var estimatedMiles = 0.0
     private var estimatedMileageFee = 0.0
     private var estimatedLaborFee = 0.0
+    private var savedMileageRate = 0.34
+    private var savedLaborRate = 30.0
     private var jobStartNanos = 0L
 
     companion object {
@@ -197,6 +199,8 @@ class MainActivity : AppCompatActivity() {
                 estimatedMiles = result.totalMiles
                 estimatedMileageFee = estimatedMiles * mileageRate
                 estimatedLaborFee = result.totalHours * laborRate
+                savedMileageRate = mileageRate
+                savedLaborRate = laborRate
 
                 withContext(Dispatchers.Main) {
                     showEstimate(estimatedMiles, result.totalHours,
@@ -219,13 +223,17 @@ class MainActivity : AppCompatActivity() {
                 applyState()
             }
             JobState.RUNNING -> {
-                val laborRate = binding.etLaborFee.text.toString().toDoubleOrNull() ?: 30.00
                 val elapsedNanos = System.nanoTime() - jobStartNanos
                 val elapsedMinutes = elapsedNanos / 60_000_000_000.0
-                val actualLaborFee = (elapsedMinutes / 60.0) * laborRate
+                val elapsedHours = elapsedMinutes / 60.0
+                val actualLaborFee = elapsedHours * savedLaborRate
                 val totalFee = estimatedMileageFee + actualLaborFee
 
                 binding.cardPrice.visibility = View.VISIBLE
+                binding.tvActMiles.text = getString(R.string.act_miles,
+                    String.format(Locale.US, "%.1f", estimatedMiles))
+                binding.tvActTime.text = getString(R.string.act_time,
+                    String.format(Locale.US, "%.2f", elapsedHours))
                 binding.tvPrice.text = getString(R.string.price_display,
                     String.format(Locale.US, "%.2f", totalFee))
 
@@ -247,6 +255,8 @@ class MainActivity : AppCompatActivity() {
         estimatedMiles = 0.0
         estimatedMileageFee = 0.0
         estimatedLaborFee = 0.0
+        savedMileageRate = 0.34
+        savedLaborRate = 30.0
         jobStartNanos = 0L
 
         state = JobState.IDLE

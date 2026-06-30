@@ -12,6 +12,7 @@
     <string name="label_trip_details">Trip Details</string>
     <string name="label_fee_settings">Fee Settings</string>
     <string name="label_estimate">Estimate</string>
+    <string name="label_actual">Actual</string>
     <string name="label_price_title">Price of Job:</string>
     <string name="calculating">Calculating…</string>
     <string name="error_invalid_input">Please enter start and end locations.</string>
@@ -20,6 +21,8 @@
     <string name="est_time">Estimated Time: %s hours</string>
     <string name="est_mileage_cost">Estimated Mileage Cost: $%s</string>
     <string name="est_labor_cost">Estimated Labor Cost: $%s</string>
+    <string name="act_miles">Actual Miles: %s</string>
+    <string name="act_time">Actual Time: %s hours</string>
     <string name="price_display">$%s</string>
     <string name="nav_home_address">Home Address</string>
     <string name="nav_api_key">API Key</string>
