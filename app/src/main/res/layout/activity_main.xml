@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:title="Cool Guy Fee Calc"
+            app:title="Cool Guy Fee Calculator"
             app:titleTextColor="@android:color/white" />
 
         <ScrollView

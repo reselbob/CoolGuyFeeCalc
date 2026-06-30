@@ -1,6 +1,8 @@
 package com.coolguy.feeCalc
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -279,6 +281,8 @@ class MainActivity : AppCompatActivity() {
                 binding.btnEstimate.visibility = View.VISIBLE
                 binding.btnStartStop.isEnabled = false
                 binding.btnStartStop.text = getString(R.string.btn_start)
+                binding.btnStartStop.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#4CAF50"))
                 binding.btnReset.isEnabled = false
             }
             JobState.ESTIMATED -> {
@@ -286,17 +290,23 @@ class MainActivity : AppCompatActivity() {
                 binding.btnEstimate.visibility = View.GONE
                 binding.btnStartStop.isEnabled = true
                 binding.btnStartStop.text = getString(R.string.btn_start)
+                binding.btnStartStop.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#4CAF50"))
                 binding.btnReset.isEnabled = false
                 binding.progressBar.visibility = View.GONE
             }
             JobState.RUNNING -> {
                 binding.btnStartStop.isEnabled = true
                 binding.btnStartStop.text = getString(R.string.btn_stop)
+                binding.btnStartStop.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#F44336"))
                 binding.btnReset.isEnabled = false
             }
             JobState.COMPLETED -> {
                 binding.btnStartStop.isEnabled = false
                 binding.btnStartStop.text = getString(R.string.btn_start)
+                binding.btnStartStop.backgroundTintList =
+                    ColorStateList.valueOf(Color.parseColor("#4CAF50"))
                 binding.btnReset.isEnabled = true
                 binding.progressBar.visibility = View.GONE
             }
