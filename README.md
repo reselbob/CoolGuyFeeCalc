@@ -29,17 +29,33 @@ Once the delivery start and end locations are determined, the fee is calculated 
 
 ![App mockup](app_mockup.png)
 
-| Parameter   | Value |UI ELEMENT |
-|--------|-------|-------|
-| Start Location | {START_LOCATION_ADDRESS} | TEXT or LOCATION PICKER with Validation for valid address|
-| Start Location    | {END_LOCATION_ADDRESS } | TEXT or LOCATION PICKER with Validation for valid address|
-| Milage Fee | {DEFAULT TO  DEFAULT_MILEAGE_FEE }| TEXT with Validation for decimal value |
-| Labor Fee  | DEFAULT TO  DEFAULT_LABOR_FEE| TEXT with Validation for decimal value |
+| Parameter      | Value                              | UI ELEMENT                                                |
+|----------------|------------------------------------|-----------------------------------------------------------|
+| Start Location | {START_LOCATION_ADDRESS}           | TEXT or LOCATION PICKER with Validation for valid address |
+| Start Location | {END_LOCATION_ADDRESS }            | TEXT or LOCATION PICKER with Validation for valid address |
+| Milage Fee     | {DEFAULT TO  DEFAULT_MILEAGE_FEE } | TEXT with Validation for decimal value                    |
+| Labor Fee      | DEFAULT TO  DEFAULT_LABOR_FEE      | TEXT with Validation for decimal value                    |
+|                | **(ESTIMATE_BUTTON)**              |  |
+|                | {ESTIMATE WITH DETAILS HERE}       | |
+|                | **(START/STOP_BUTTON)**            |  |
+| Price of Job:  | {CALCULATED_PRICE_OF_JOB}          |  |
+|                | **(RESET_BUTTON)**                 |  |
+
 
 Estimated Round Trip in Miles: {MILEAGE FROM HOME TO START TO END TO HOME}
 Estimated Time : {(TIME FROM HOME TO START TO END TO HOME) + (LOAD_IN_TIME) + (LOAD_OUT_TIME)}
 
 Price of Job: {CALCULATED_PRICE_OF_JOB}
+
+(ESTIMATE_BUTTON) : Shows the estimated price of the job when clicked
+
+{ESTIMATE WITH DETAILS HERE} : Estimated Mileage and Labor cost
+
+(START/STOP_BUTTON) : Starts a timer that keeps track of the actual time it took to execute the job. Once the job starts,
+the button displays STOP. When the STOP button is clicked the {CALCULATED_PRICE_OF_JOB} is displayed.
+
+(RESET_BUTTON) : Resets the UI, clearing all values in anticipation of accepting another job.
+
 
 # Wiring the application to Google Matrix API
 

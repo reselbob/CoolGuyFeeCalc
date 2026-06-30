@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawerLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:openDrawer="start">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -34,7 +32,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     app:cardCornerRadius="12dp"
                     app:contentPadding="16dp">
 
@@ -46,25 +44,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
+                            android:layout_marginBottom="10dp"
                             android:text="@string/label_trip_details"
                             android:textSize="18sp"
                             android:textStyle="bold" />
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="4dp"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etStartStreet"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="@string/start_street_hint"
-                                android:inputType="textPostalAddress"
-                                android:maxLines="2" />
-                        </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
@@ -73,25 +56,10 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etStartZip"
+                                android:id="@+id/etStartLocation"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/start_zip_hint"
-                                android:inputType="textPostalAddress"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="4dp"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etEndStreet"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="@string/end_street_hint"
+                                android:hint="@string/start_location_hint"
                                 android:inputType="textPostalAddress"
                                 android:maxLines="2" />
                         </com.google.android.material.textfield.TextInputLayout>
@@ -102,12 +70,12 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                             <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/etEndZip"
+                                android:id="@+id/etEndLocation"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:hint="@string/end_zip_hint"
+                                android:hint="@string/end_location_hint"
                                 android:inputType="textPostalAddress"
-                                android:maxLines="1" />
+                                android:maxLines="2" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                     </LinearLayout>
@@ -117,7 +85,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="12dp"
                     app:cardCornerRadius="12dp"
                     app:contentPadding="16dp">
 
@@ -129,7 +97,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
+                            android:layout_marginBottom="10dp"
                             android:text="@string/label_fee_settings"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -168,24 +136,25 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnCalculate"
+                    android:id="@+id/btnEstimate"
                     android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:layout_marginBottom="16dp"
-                    android:text="@string/btn_calculate"
+                    android:layout_height="52dp"
+                    android:layout_marginBottom="8dp"
+                    android:text="@string/btn_estimate"
                     android:textSize="16sp" />
 
                 <ProgressBar
                     android:id="@+id/progressBar"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:visibility="gone" />
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/cardResults"
+                    android:id="@+id/cardEstimate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
                     android:visibility="gone"
                     app:cardCornerRadius="12dp"
                     app:contentPadding="16dp">
@@ -198,35 +167,89 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:text="@string/label_results"
-                            android:textSize="18sp"
+                            android:layout_marginBottom="8dp"
+                            android:text="@string/label_estimate"
+                            android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tvTotalMiles"
+                            android:id="@+id/tvEstMiles"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
-                            android:id="@+id/tvTotalTime"
+                            android:id="@+id/tvEstTime"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:textSize="16sp" />
+                            android:layout_marginTop="2dp"
+                            android:textSize="14sp" />
 
                         <TextView
-                            android:id="@+id/tvTotalPrice"
+                            android:id="@+id/tvEstMileageCost"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:textSize="20sp"
+                            android:layout_marginTop="6dp"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvEstLaborCost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStartStop"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginBottom="8dp"
+                    android:enabled="false"
+                    android:text="@string/btn_start"
+                    android:textSize="16sp" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPrice"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone"
+                    app:cardCornerRadius="12dp"
+                    app:contentPadding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_price_title"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="28sp"
                             android:textStyle="bold" />
 
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnReset"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginBottom="16dp"
+                    android:enabled="false"
+                    android:text="@string/btn_reset"
+                    android:textSize="16sp" />
 
             </LinearLayout>
 

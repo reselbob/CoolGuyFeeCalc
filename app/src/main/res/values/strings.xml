@@ -1,22 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Cool Guy Fee Calc</string>
-    <string name="start_street_hint">Start Street Address</string>
-    <string name="start_zip_hint">Start Zip Code</string>
-    <string name="end_street_hint">End Street Address</string>
-    <string name="end_zip_hint">End Zip Code</string>
+    <string name="start_location_hint">Start Location</string>
+    <string name="end_location_hint">End Location</string>
     <string name="mileage_fee_hint">Mileage Fee ($/mile)</string>
     <string name="labor_fee_hint">Labor Fee ($/hour)</string>
-    <string name="btn_calculate">Calculate Fee</string>
+    <string name="btn_estimate">Estimate</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_stop">Stop</string>
+    <string name="btn_reset">Reset</string>
     <string name="label_trip_details">Trip Details</string>
     <string name="label_fee_settings">Fee Settings</string>
-    <string name="label_results">Results</string>
+    <string name="label_estimate">Estimate</string>
+    <string name="label_price_title">Price of Job:</string>
     <string name="calculating">Calculating…</string>
     <string name="error_invalid_input">Please enter start and end locations.</string>
     <string name="error_api">Failed to get distance data. Check your API key and internet connection.</string>
-    <string name="result_miles">Estimated Round Trip in Miles: %s</string>
-    <string name="result_time">Estimated Time: %s hours</string>
-    <string name="result_price">Price of Job: $%s</string>
+    <string name="est_miles">Estimated Round Trip in Miles: %s</string>
+    <string name="est_time">Estimated Time: %s hours</string>
+    <string name="est_mileage_cost">Estimated Mileage Cost: $%s</string>
+    <string name="est_labor_cost">Estimated Labor Cost: $%s</string>
+    <string name="price_display">$%s</string>
     <string name="nav_home_address">Home Address</string>
     <string name="nav_api_key">API Key</string>
     <string name="dialog_home_title">Home Address</string>

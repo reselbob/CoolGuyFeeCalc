@@ -2,13 +2,13 @@ package com.coolguy.feeCalc
 
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.coolguy.feeCalc.api.DistanceResult
 import com.coolguy.feeCalc.api.MapsApiService
 import com.coolguy.feeCalc.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
@@ -18,20 +18,29 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
+enum class JobState { IDLE, ESTIMATED, RUNNING, COMPLETED }
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var drawerLayout: DrawerLayout
-    private lateinit var navView: NavigationView
     private val api = MapsApiService.create()
     private val prefs by lazy {
         getSharedPreferences("coolguy_prefs", Context.MODE_PRIVATE)
     }
 
+    private var state = JobState.IDLE
+    private var estimatedMiles = 0.0
+    private var estimatedMileageFee = 0.0
+    private var estimatedLaborFee = 0.0
+    private var jobStartNanos = 0L
+
     companion object {
         const val PREF_HOME = "home_address"
         const val PREF_API_KEY = "maps_api_key"
         const val DEFAULT_HOME = "3649 Glendon Ave, Los Angeles, CA 90034"
+        const val LOAD_IN_MINUTES = 20
+        const val LOAD_OUT_MINUTES = 20
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,10 +49,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         drawerLayout = binding.drawerLayout
-        navView = binding.navView
+        val navView: NavigationView = binding.navView
 
         setSupportActionBar(binding.toolbar)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         binding.toolbar.setNavigationOnClickListener {
             drawerLayout.openDrawer(GravityCompat.START)
@@ -58,8 +66,11 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        binding.btnCalculate.setOnClickListener { calculateFee() }
+        binding.btnEstimate.setOnClickListener { onEstimate() }
+        binding.btnStartStop.setOnClickListener { onStartStop() }
+        binding.btnReset.setOnClickListener { onReset() }
 
+        applyState()
         checkApiKeyOnStart()
     }
 
@@ -70,9 +81,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun getHomeAddress(): String {
-        return prefs.getString(PREF_HOME, DEFAULT_HOME) ?: DEFAULT_HOME
-    }
+    private fun getHomeAddress(): String =
+        prefs.getString(PREF_HOME, DEFAULT_HOME) ?: DEFAULT_HOME
 
     private fun getApiKey(): String {
         val saved = prefs.getString(PREF_API_KEY, null)
@@ -105,7 +115,7 @@ class MainActivity : AppCompatActivity() {
             if (!existing.isNullOrBlank()) setText(existing)
             hint = getString(R.string.dialog_api_hint)
         }
-        val dialog = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this)
             .setTitle(R.string.dialog_api_title)
             .setView(input)
             .setPositiveButton(R.string.dialog_save) { _, _ ->
@@ -120,24 +130,17 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton(R.string.dialog_cancel, null)
 
         if (force) {
-            dialog.setCancelable(false)
-            dialog.setNegativeButton("Exit") { _, _ -> finish() }
+            builder.setCancelable(false)
+            builder.setNegativeButton("Exit") { _, _ -> finish() }
         }
-
-        dialog.show()
+        builder.show()
     }
 
-    private fun calculateFee() {
-        val startStreet = binding.etStartStreet.text.toString().trim()
-        val startZip = binding.etStartZip.text.toString().trim()
-        val endStreet = binding.etEndStreet.text.toString().trim()
-        val endZip = binding.etEndZip.text.toString().trim()
-        val start = "$startStreet, $startZip"
-        val end = "$endStreet, $endZip"
+    private fun onEstimate() {
+        val start = binding.etStartLocation.text.toString().trim()
+        val end = binding.etEndLocation.text.toString().trim()
 
-        if (startStreet.isEmpty() || startZip.isEmpty() ||
-            endStreet.isEmpty() || endZip.isEmpty()
-        ) {
+        if (start.isEmpty() || end.isEmpty()) {
             Toast.makeText(this, R.string.error_invalid_input, Toast.LENGTH_SHORT).show()
             return
         }
@@ -152,29 +155,27 @@ class MainActivity : AppCompatActivity() {
         val laborRate = binding.etLaborFee.text.toString().toDoubleOrNull() ?: 30.00
         val home = getHomeAddress()
 
-        setLoading(true)
+        binding.progressBar.visibility = View.VISIBLE
+        binding.btnEstimate.isEnabled = false
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val origins = "$home|$start|$end"
                 val destinations = "$start|$end|$home"
-
                 val response = api.getDistanceMatrix(origins, destinations, apiKey)
 
                 if (response.status != "OK") {
                     showError(getString(R.string.error_api))
                     return@launch
                 }
-
-                val rows = response.rows
-                if (rows.size < 3) {
+                if (response.rows.size < 3) {
                     showError("Unexpected API response format.")
                     return@launch
                 }
 
-                val homeToStart = extractResult(rows[0].elements, 0)
-                val startToEnd = extractResult(rows[1].elements, 1)
-                val endToHome = extractResult(rows[2].elements, 2)
+                val homeToStart = extractResult(response.rows[0].elements, 0)
+                val startToEnd = extractResult(response.rows[1].elements, 1)
+                val endToHome = extractResult(response.rows[2].elements, 2)
 
                 if (homeToStart == null || startToEnd == null || endToHome == null) {
                     showError("Could not calculate route for one or more segments.")
@@ -193,9 +194,15 @@ class MainActivity : AppCompatActivity() {
                 )
                 val result = FeeCalculator.calculate(input)
 
+                estimatedMiles = result.totalMiles
+                estimatedMileageFee = estimatedMiles * mileageRate
+                estimatedLaborFee = result.totalHours * laborRate
+
                 withContext(Dispatchers.Main) {
-                    displayResults(result.totalMiles, result.totalHours, result.totalFee)
-                    setLoading(false)
+                    showEstimate(estimatedMiles, result.totalHours,
+                        estimatedMileageFee, estimatedLaborFee)
+                    state = JobState.ESTIMATED
+                    applyState()
                 }
 
             } catch (e: Exception) {
@@ -204,54 +211,114 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun onStartStop() {
+        when (state) {
+            JobState.ESTIMATED -> {
+                jobStartNanos = System.nanoTime()
+                state = JobState.RUNNING
+                applyState()
+            }
+            JobState.RUNNING -> {
+                val laborRate = binding.etLaborFee.text.toString().toDoubleOrNull() ?: 30.00
+                val elapsedNanos = System.nanoTime() - jobStartNanos
+                val elapsedMinutes = elapsedNanos / 60_000_000_000.0
+                val actualLaborFee = (elapsedMinutes / 60.0) * laborRate
+                val totalFee = estimatedMileageFee + actualLaborFee
+
+                binding.cardPrice.visibility = View.VISIBLE
+                binding.tvPrice.text = getString(R.string.price_display,
+                    String.format(Locale.US, "%.2f", totalFee))
+
+                state = JobState.COMPLETED
+                applyState()
+            }
+            else -> {}
+        }
+    }
+
+    private fun onReset() {
+        binding.etStartLocation.text?.clear()
+        binding.etEndLocation.text?.clear()
+        binding.etMileageFee.setText("0.34")
+        binding.etLaborFee.setText("30.00")
+        binding.cardEstimate.visibility = View.GONE
+        binding.cardPrice.visibility = View.GONE
+
+        estimatedMiles = 0.0
+        estimatedMileageFee = 0.0
+        estimatedLaborFee = 0.0
+        jobStartNanos = 0L
+
+        state = JobState.IDLE
+        applyState()
+    }
+
+    private fun applyState() {
+        when (state) {
+            JobState.IDLE -> {
+                binding.btnEstimate.isEnabled = true
+                binding.btnEstimate.visibility = View.VISIBLE
+                binding.btnStartStop.isEnabled = false
+                binding.btnStartStop.text = getString(R.string.btn_start)
+                binding.btnReset.isEnabled = false
+            }
+            JobState.ESTIMATED -> {
+                binding.btnEstimate.isEnabled = false
+                binding.btnEstimate.visibility = View.GONE
+                binding.btnStartStop.isEnabled = true
+                binding.btnStartStop.text = getString(R.string.btn_start)
+                binding.btnReset.isEnabled = false
+                binding.progressBar.visibility = View.GONE
+            }
+            JobState.RUNNING -> {
+                binding.btnStartStop.isEnabled = true
+                binding.btnStartStop.text = getString(R.string.btn_stop)
+                binding.btnReset.isEnabled = false
+                binding.cardEstimate.visibility = View.GONE
+            }
+            JobState.COMPLETED -> {
+                binding.btnStartStop.isEnabled = false
+                binding.btnStartStop.text = getString(R.string.btn_start)
+                binding.btnReset.isEnabled = true
+                binding.progressBar.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun showEstimate(miles: Double, hours: Double,
+                             mileageCost: Double, laborCost: Double) {
+        binding.cardEstimate.visibility = View.VISIBLE
+        binding.tvEstMiles.text = getString(R.string.est_miles,
+            String.format(Locale.US, "%.1f", miles))
+        binding.tvEstTime.text = getString(R.string.est_time,
+            String.format(Locale.US, "%.1f", hours))
+        binding.tvEstMileageCost.text = getString(R.string.est_mileage_cost,
+            String.format(Locale.US, "%.2f", mileageCost))
+        binding.tvEstLaborCost.text = getString(R.string.est_labor_cost,
+            String.format(Locale.US, "%.2f", laborCost))
+    }
+
     private fun extractResult(
         elements: List<com.coolguy.feeCalc.api.Element>,
         index: Int
-    ): DistanceResult? {
-        if (index >= elements.size) return null
+    ) = if (index < elements.size) {
         val el = elements[index]
-        if (el.status != "OK") return null
-        val dist = el.distance ?: return null
-        val dur = el.duration ?: return null
-        return DistanceResult(dist.value, dur.value)
-    }
-
-    private fun displayResults(totalMiles: Double, totalHours: Double, totalFee: Double) {
-        binding.cardResults.visibility = android.view.View.VISIBLE
-        binding.tvTotalMiles.text = getString(
-            R.string.result_miles,
-            String.format(Locale.US, "%.1f", totalMiles)
-        )
-        binding.tvTotalTime.text = getString(
-            R.string.result_time,
-            String.format(Locale.US, "%.1f", totalHours)
-        )
-        binding.tvTotalPrice.text = getString(
-            R.string.result_price,
-            String.format(Locale.US, "%.2f", totalFee)
-        )
-    }
-
-    private fun setLoading(loading: Boolean) {
-        binding.progressBar.visibility =
-            if (loading) android.view.View.VISIBLE else android.view.View.GONE
-        binding.btnCalculate.isEnabled = !loading
-        binding.btnCalculate.text = if (loading) getString(R.string.calculating)
-        else getString(R.string.btn_calculate)
-    }
+        if (el.status == "OK" && el.distance != null && el.duration != null)
+            com.coolguy.feeCalc.api.DistanceResult(el.distance.value, el.duration.value)
+        else null
+    } else null
 
     private suspend fun showError(msg: String) {
         withContext(Dispatchers.Main) {
-            setLoading(false)
+            binding.progressBar.visibility = View.GONE
+            binding.btnEstimate.isEnabled = true
             Toast.makeText(this@MainActivity, msg, Toast.LENGTH_LONG).show()
         }
     }
 
     override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START))
             drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
+        else super.onBackPressed()
     }
 }
