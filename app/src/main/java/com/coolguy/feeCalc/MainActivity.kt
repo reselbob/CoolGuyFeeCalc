@@ -293,7 +293,6 @@ class MainActivity : AppCompatActivity() {
                 binding.btnStartStop.isEnabled = true
                 binding.btnStartStop.text = getString(R.string.btn_stop)
                 binding.btnReset.isEnabled = false
-                binding.cardEstimate.visibility = View.GONE
             }
             JobState.COMPLETED -> {
                 binding.btnStartStop.isEnabled = false
