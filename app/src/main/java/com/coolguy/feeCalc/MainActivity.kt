@@ -38,6 +38,10 @@ class MainActivity : AppCompatActivity() {
     private var savedMileageRate = 0.34
     private var savedLaborRate = 30.0
     private var jobStartNanos = 0L
+    private var savedHomeToStartMeters = 0
+    private var savedStartToEndMeters = 0
+    private var savedEndAddress = ""
+    private var savedHomeAddress = ""
 
     companion object {
         const val PREF_HOME = "home_address"
@@ -193,6 +197,11 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
 
+                savedHomeToStartMeters = homeToStart.distanceMeters
+                savedStartToEndMeters = startToEnd.distanceMeters
+                savedEndAddress = end
+                savedHomeAddress = home
+
                 val input = FeeInput(
                     homeToStartMeters = homeToStart.distanceMeters,
                     homeToStartSeconds = homeToStart.durationSeconds,
@@ -232,22 +241,73 @@ class MainActivity : AppCompatActivity() {
                 applyState()
             }
             JobState.RUNNING -> {
+                binding.btnStartStop.isEnabled = false
+                binding.progressBar.visibility = View.VISIBLE
+
+                val apiKey = getApiKey()
                 val elapsedNanos = System.nanoTime() - jobStartNanos
                 val elapsedMinutes = elapsedNanos / 60_000_000_000.0
                 val elapsedHours = elapsedMinutes / 60.0
-                val actualLaborFee = elapsedHours * savedLaborRate
-                val totalFee = estimatedMileageFee + actualLaborFee
 
-                binding.cardPrice.visibility = View.VISIBLE
-                binding.tvActMiles.text = getString(R.string.act_miles,
-                    String.format(Locale.US, "%.1f", estimatedMiles))
-                binding.tvActTime.text = getString(R.string.act_time,
-                    String.format(Locale.US, "%.2f", elapsedHours))
-                binding.tvPrice.text = getString(R.string.price_display,
-                    String.format(Locale.US, "%.2f", totalFee))
+                CoroutineScope(Dispatchers.IO).launch {
+                    try {
+                        val response = api.getDistanceMatrix(
+                            savedEndAddress, savedHomeAddress, apiKey
+                        )
 
-                state = JobState.COMPLETED
-                applyState()
+                        var returnMeters = 0
+                        var returnSeconds = 0
+                        if (response.status == "OK" && response.rows.isNotEmpty()) {
+                            val el = response.rows[0].elements.firstOrNull()
+                            if (el?.status == "OK" && el.distance != null && el.duration != null) {
+                                returnMeters = el.distance.value
+                                returnSeconds = el.duration.value
+                            }
+                        }
+
+                        val result = FeeCalculator.calculateActual(
+                            homeToStartMeters = savedHomeToStartMeters,
+                            startToEndMeters = savedStartToEndMeters,
+                            endToHomeMeters = returnMeters,
+                            endToHomeSeconds = returnSeconds,
+                            elapsedHours = elapsedHours,
+                            mileageRate = savedMileageRate,
+                            laborRate = savedLaborRate
+                        )
+
+                        val returnMiles = returnMeters / 1609.344
+                        val returnHours = returnSeconds / 3600.0
+                        val returnCost = returnMiles * savedMileageRate +
+                                returnSeconds / 3600.0 * savedLaborRate
+
+                        withContext(Dispatchers.Main) {
+                            binding.cardPrice.visibility = View.VISIBLE
+                            binding.tvActMiles.text = getString(R.string.act_miles,
+                                String.format(Locale.US, "%.1f", result.totalMiles))
+                            binding.tvActTime.text = getString(R.string.act_time,
+                                String.format(Locale.US, "%.2f", elapsedHours))
+                            binding.tvReturnMiles.text = getString(R.string.act_return_miles,
+                                String.format(Locale.US, "%.1f", returnMiles))
+                            binding.tvReturnTime.text = getString(R.string.act_return_time,
+                                String.format(Locale.US, "%.2f", returnHours))
+                            binding.tvReturnCost.text = getString(R.string.act_return_cost,
+                                String.format(Locale.US, "%.2f", returnCost))
+                            binding.tvPrice.text = getString(R.string.price_display,
+                                String.format(Locale.US, "%.2f", result.totalFee))
+
+                            state = JobState.COMPLETED
+                            applyState()
+                        }
+                    } catch (e: Exception) {
+                        withContext(Dispatchers.Main) {
+                            binding.progressBar.visibility = View.GONE
+                            binding.btnStartStop.isEnabled = true
+                            Toast.makeText(this@MainActivity,
+                                "Error: ${e.localizedMessage ?: "Unknown error"}",
+                                Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
             }
             else -> {}
         }
@@ -269,6 +329,10 @@ class MainActivity : AppCompatActivity() {
         savedMileageRate = 0.34
         savedLaborRate = 30.0
         jobStartNanos = 0L
+        savedHomeToStartMeters = 0
+        savedStartToEndMeters = 0
+        savedEndAddress = ""
+        savedHomeAddress = ""
 
         state = JobState.IDLE
         applyState()

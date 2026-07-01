@@ -82,4 +82,23 @@ class FeeCalculatorTest {
         val expectedMiles = 1609.0 / 1609.344
         assertEquals(expectedMiles, result.totalMiles, 0.01)
     }
+
+    @Test
+    fun `calculateActual with elapsed time and return trip`() {
+        val result = FeeCalculator.calculateActual(
+            homeToStartMeters = 5149,
+            startToEndMeters = 11265,
+            endToHomeMeters = 6115,
+            endToHomeSeconds = 600,
+            elapsedHours = 0.5,
+            mileageRate = 0.34,
+            laborRate = 30.0
+        )
+
+        val expectedMiles = (5149 + 11265 + 6115) / 1609.344
+        assertEquals(expectedMiles, result.totalMiles, 0.1)
+
+        val expectedReturnHours = 600.0 / 3600.0
+        assertEquals(0.5 + expectedReturnHours, result.totalHours, 0.01)
+    }
 }

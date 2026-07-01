@@ -41,4 +41,26 @@ object FeeCalculator {
 
         return FeeResult(totalMiles, totalHours, totalFee)
     }
+
+    fun calculateActual(
+        homeToStartMeters: Int,
+        startToEndMeters: Int,
+        endToHomeMeters: Int,
+        endToHomeSeconds: Int,
+        elapsedHours: Double,
+        mileageRate: Double,
+        laborRate: Double
+    ): FeeResult {
+        val totalMeters = homeToStartMeters + startToEndMeters + endToHomeMeters
+        val totalMiles = totalMeters / 1609.344
+
+        val jobLaborFee = elapsedHours * laborRate
+        val returnHours = endToHomeSeconds / 3600.0
+        val returnLaborFee = returnHours * laborRate
+
+        val mileageFee = totalMiles * mileageRate
+        val totalFee = mileageFee + jobLaborFee + returnLaborFee
+
+        return FeeResult(totalMiles, elapsedHours + returnHours, totalFee)
+    }
 }
