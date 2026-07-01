@@ -12,6 +12,7 @@
   - [Add the key to the app](#add-the-key-to-the-app)
   - [Secure the key (optional but recommended)](#secure-the-key-optional-but-recommended)
   - [Billing](#billing)
+- [Installing the application directly on a cell phone](#installing-the-application-directly-on-a-cell-phone)
 
 ## Purpose
 
@@ -112,5 +113,16 @@ The `.gitignore` already excludes this file so it stays local and never gets com
    In the Google Cloud Console, under API Keys > Edit > Application restrictions, choose Android apps and add your app's package name (com.coolguy.feeCalc) and SHA-1 signing certificate fingerprint.
 
 ### Billing
-   The Distance Matrix API requires a billing account. Google offers a $200/month free credit which covers ~40,000 calls/month.
+    The Distance Matrix API requires a billing account. Google offers a $200/month free credit which covers ~40,000 calls/month.
 
+## Installing the application directly on a cell phone
+
+Assuming you are using Android Studio as your IDE:
+
+1. On your Android phone, go to **Settings → About Phone** and tap **Build Number** seven times to enable Developer Options.
+2. Go to **Settings → Developer Options** and enable **USB Debugging**.
+3. Connect the phone to your computer via USB cable.
+4. Open the project in Android Studio.
+5. In the toolbar, select your phone from the device dropdown (next to the Run button).
+6. Click the **Run** button (green triangle) or press **Shift+F10**.
+7. Android Studio builds the APK, installs it on your phone, and launches the app.
